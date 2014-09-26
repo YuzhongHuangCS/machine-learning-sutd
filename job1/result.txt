@@ -1,4 +1,15 @@
-hyz@Aspire:~/machine_learning$ time pypy test.py 
+# deepin depth = 0
+hyz@Aspire:~/machine-learning-sutd/job1$ time pypy main.py 
+361
+[0, 0, 0]
+355
+
+real	0m0.135s
+user	0m0.123s
+sys	0m0.012s
+
+# deepin depth = 1
+hyz@Aspire:~/machine_learning$ time pypy main.py 
 23
 [-0.1440696939935151, -0.35174730505241314, 0.0]
 34
@@ -7,11 +18,12 @@ real	0m4.917s
 user	0m4.894s
 sys	0m0.024s
 
-hyz@Aspire:~/machine_learning$ time python main.py 
+# deepin depth = 2
+hyz@Aspire:~/machine-learning-sutd/job1$ time pypy main.py 
 23
 [-0.1440696939935151, -0.35174730505241314, 0.0]
 34
 
-real	2m32.174s
-user	2m31.766s
-sys	0m0.028s
+real	14m24.472s
+user	14m24.070s
+sys	0m0.260s

@@ -32,35 +32,32 @@ def analysys(para):
 		if sign((row[0], row[1]), para) != row[2]:
 			yield patch(para, row)
 
-globalPara = []
-globalErrors = []
+'''
+@parameter: init para
+@return: the best para among the child and sub-child para created by this para.
+'''
+def deepin(i, para, depth):
+	if i < depth:
+		tryPara = list(analysys(para))
+		results = [deepin(i+1, subPara, depth) for subPara in tryPara]
 
-def deepin(i, para, limit):
-	refinedPara = list(analysys(para))
-	refinedPara.append(para)
+		thisErrors = [result[0] for result in results]
+		thisPara = [result[1] for result in results]
 
-	refinedErrors = [errors(para) for para in refinedPara]
-	refinedErrorMin = min(refinedErrors)
+		thisErrors.append(errors(para))
+		thisPara.append(para)
 
+	else:
+		thisPara = list(analysys(para))
+		thisPara.append(para)
+		thisErrors = [errors(para) for para in thisPara]
+		
+	thisErrorMin = min(thisErrors)
+	return(thisErrorMin, thisPara[thisErrors.index(thisErrorMin)])
 
-for roughPara in analysys(initPara):
-	refinedPara = list(analysys(roughPara))
-	refinedPara.append(roughPara)
-
-	refinedErrors = [errors(para) for para in refinedPara]
-	refinedErrorMin = min(refinedErrors)
-
-	globalErrors.append(refinedErrorMin)
-	globalPara.append(refinedPara[refinedErrors.index(refinedErrorMin)])
-
-globalPara.append(initPara)
-globalErrors.append(errors(initPara))
-
-#print(globalPara)
-#print(globalErrors)
-
-bestErrors = min(globalErrors)
-bestPara = globalPara[globalErrors.index(bestErrors)]
+finalResult = deepin(0, initPara, 1)
+bestErrors = finalResult[0]
+bestPara = finalResult[1]
 predictionError = predictErrors(bestPara)
 
 print(bestErrors)
