@@ -1,0 +1,17 @@
+hyz@Aspire:~/machine_learning$ time pypy test.py 
+23
+[-0.1440696939935151, -0.35174730505241314, 0.0]
+34
+
+real	0m4.917s
+user	0m4.894s
+sys	0m0.024s
+
+hyz@Aspire:~/machine_learning$ time python main.py 
+23
+[-0.1440696939935151, -0.35174730505241314, 0.0]
+34
+
+real	2m32.174s
+user	2m31.766s
+sys	0m0.028s
