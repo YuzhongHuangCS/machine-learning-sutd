@@ -10,7 +10,7 @@ typedef array<double, 3> Row;
 typedef shared_ptr< list<Row> > RowList;
 typedef array<double, 3> Para;
 typedef shared_ptr< list<Para> > ParaList;
-typedef pair<int, Para> Score;
+typedef pair<Para, int> Score;
 
 // function defines
 RowList readFile(const string& fileName);
@@ -28,10 +28,10 @@ auto testFileContent = readFile("test_1_5.csv");
 
 // main
 int main(void) {
-	Score finalResult = deepin(0, initPara, 1);
+	Score finalResult = deepin(0, initPara, 2);
 	
-	int bestError = finalResult.first;
-	Para bestPara = finalResult.second;
+	Para bestPara = finalResult.first;
+	int bestError = finalResult.second;
 	
 	int predictionError = predictErrors(bestPara);
 
@@ -119,9 +119,13 @@ ParaList analysys(const Para& para) {
 	return candidatePara;
 }
 
+
+/* @parameter: init para
+ * @return: the best para among the child and sub-child para created by this para.
+ */
 Score deepin(const int i, const Para& para, const int depth) {
 	list<Score> thisResult;
-	thisResult.push_back(Score(errors(para), para));
+	thisResult.push_back(Score(para, errors(para)));
 
 	if(i < depth){
 		auto tryParas = analysys(para);
@@ -135,19 +139,19 @@ Score deepin(const int i, const Para& para, const int depth) {
 
 		for(auto it = tryParas->begin(); it != tryParas->end(); it++){
 			Para& subPara = *it;
-			thisResult.push_back(Score(errors(subPara), subPara));
+			thisResult.push_back(Score(subPara, errors(subPara)));
 		}
 	}
 
-	int bestError = thisResult.begin()->first;
-	Para bestPara = thisResult.begin()->second;
+	Para bestPara = thisResult.begin()->first;
+	int bestError = thisResult.begin()->second;
 
 	for(auto it = thisResult.begin(); it != thisResult.end(); it++){
-		if(it->first < bestError){
-			bestError = it->first;
-			bestPara = it->second;
+		if(it->second < bestError){
+			bestPara = it->first;
+			bestError = it->second;
 		}
 	}
 
-	return(Score(bestError, bestPara));
+	return(Score(bestPara, bestError));
 }
