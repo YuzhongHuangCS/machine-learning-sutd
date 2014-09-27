@@ -5,6 +5,11 @@
 
 using namespace std;
 
+/* Becasue I want to use OpenMP,
+ * So I must use vector as the container for paras, because openmp require random access iterator.
+ * And must use list as the container for results, because vector need to relocate, and therefore not thread-safe.
+ */
+
 // type deinfe
 typedef array<double, 3> Row;
 typedef shared_ptr< list<Row> > RowList;
