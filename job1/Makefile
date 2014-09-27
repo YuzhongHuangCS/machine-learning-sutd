@@ -1,6 +1,6 @@
 CC			= g++
-CFLAGS		= -std=c++11 -Wall -O3 -march=native
-LINKFLAGS	= 
+CFLAGS		= -std=c++11 -Wall -fopenmp -march=native -O3
+LINKFLAGS	=
 SRCS		= main.cpp
 OBJS		= $(SRCS:.cpp=.o)
 PROG		= main.out

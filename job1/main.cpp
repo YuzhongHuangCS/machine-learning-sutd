@@ -9,7 +9,7 @@ using namespace std;
 typedef array<double, 3> Row;
 typedef shared_ptr< list<Row> > RowList;
 typedef array<double, 3> Para;
-typedef shared_ptr< list<Para> > ParaList;
+typedef shared_ptr< vector<Para> > ParaList;
 typedef pair<Para, int> Score;
 
 // function defines
@@ -19,7 +19,7 @@ int errors(const Para& para);
 int predictErrors(const Para& para);
 Para patch(const Para& para, const Row& row);
 ParaList analysys(const Para& para);
-Score deepin(const int i, const Para& para, const int depth);
+Score deepin(const int now, const Para& para, const int limit);
 
 // preset data defines
 Para initPara = {0, 0, 0};
@@ -107,7 +107,7 @@ Para patch(const Para& para, const Row& row) {
 }
 
 ParaList analysys(const Para& para) {
-	ParaList candidatePara = static_cast<ParaList>(new list<Para>);
+	ParaList candidatePara = static_cast<ParaList>(new vector<Para>);
 
 	for(auto it = trainFileContent->begin(); it != trainFileContent->end(); it++){
 		Row& row = *it;
@@ -123,22 +123,26 @@ ParaList analysys(const Para& para) {
 /* @parameter: init para
  * @return: the best para among the child and sub-child para created by this para.
  */
-Score deepin(const int i, const Para& para, const int depth) {
+Score deepin(const int now, const Para& para, const int limit) {
 	list<Score> thisResult;
 	thisResult.push_back(Score(para, errors(para)));
 
-	if(i < depth){
-		auto tryParas = analysys(para);
+	if(now < limit){
+		auto tryParas = *analysys(para);
+		const unsigned int size = tryParas.size();
 
-		for(auto it = tryParas->begin(); it != tryParas->end(); it++){
-			Para& childPara = *it;
-			thisResult.push_back(deepin(i+1, childPara, depth));
+		#pragma omp parallel for
+		for(unsigned int i = 0; i < size; i++){
+			Para& childPara = tryParas[i];
+			thisResult.push_back(deepin(now+1, childPara, limit));
 		}
 	} else{
-		auto tryParas = analysys(para);
+		auto tryParas = *analysys(para);
+		const unsigned int size = tryParas.size();
 
-		for(auto it = tryParas->begin(); it != tryParas->end(); it++){
-			Para& subPara = *it;
+		#pragma omp parallel for
+		for(unsigned int i = 0; i < size; i++){
+			Para& subPara = tryParas[i];
 			thisResult.push_back(Score(subPara, errors(subPara)));
 		}
 	}
