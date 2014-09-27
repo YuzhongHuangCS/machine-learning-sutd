@@ -10,7 +10,7 @@ using namespace std;
  * And must use list as the container for results, because vector need to relocate, and therefore not thread-safe.
  */
 
-// type deinfe
+// type define
 typedef array<double, 3> Row;
 typedef shared_ptr< list<Row> > RowList;
 typedef array<double, 3> Para;
@@ -66,7 +66,7 @@ RowList readFile(const string& fileName) {
 	return fileContent;
 }
 
-int sign(const Row& row, const Para& para) {
+inline int sign(const Row& row, const Para& para) {
 	double result = para[0] * row[0] + para[1] * row[1] + para[2];
 	if(result >= 0){
 		return 1;
