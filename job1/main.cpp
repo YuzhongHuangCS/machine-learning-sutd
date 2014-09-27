@@ -1,21 +1,24 @@
 #include <iostream>
 #include <fstream>
+#include <memory>
 #include <boost/algorithm/string.hpp>
 
 using namespace std;
 
 // type deinfe
 typedef array<double, 3> Row;
+typedef shared_ptr< list<Row> > RowList;
 typedef array<double, 3> Para;
+typedef shared_ptr< list<Para> > ParaList;
 typedef pair<int, Para> Score;
 
 // function defines
-list<Row> readFile(const string& fileName);
+RowList readFile(const string& fileName);
 int sign(const Row& row, const Para& para);
 int errors(const Para& para);
 int predictErrors(const Para& para);
 Para patch(const Para& para, const Row& row);
-list<Para> analysys(const Para& para);
+ParaList analysys(const Para& para);
 Score deepin(const int i, const Para& para, const int depth);
 
 // preset data defines
@@ -38,12 +41,12 @@ int main(void) {
 }
 
 // function implementation
-list<Row> readFile(const string& fileName) {
+RowList readFile(const string& fileName) {
 	ifstream inFile(fileName);
 	string line;
 	vector<string> words;
 	Row nums;
-	list<Row> fileContent;
+	RowList fileContent = static_cast<RowList>(new list<Row>);
 
 	while(getline(inFile, line)){
 		boost::split(words, line, boost::is_any_of(","));
@@ -52,7 +55,7 @@ list<Row> readFile(const string& fileName) {
 			stod(words[1]),
 			stod(words[2])
 		};
-		fileContent.push_back(nums);
+		fileContent->push_back(nums);
 	}
 
 	return fileContent;
@@ -70,9 +73,9 @@ int sign(const Row& row, const Para& para) {
 int errors(const Para& para) {
 	int sum = 0;
 
-	for(auto it = trainFileContent.begin(); it != trainFileContent.end(); it++){
-		Row &row = *it;
-		if(sign({row[0], row[1]}, para) != row[2]){
+	for(auto it = trainFileContent->begin(); it != trainFileContent->end(); it++){
+		Row& row = *it;
+		if(sign(row, para) != row[2]){
 			sum++;
 		}
 	}
@@ -83,8 +86,8 @@ int errors(const Para& para) {
 int predictErrors(const Para& para) {
 	int sum = 0;
 
-	for(auto it = testFileContent.begin(); it != testFileContent.end(); it++){
-		Row &row = *it;
+	for(auto it = testFileContent->begin(); it != testFileContent->end(); it++){
+		Row& row = *it;
 		if(sign(row, para) != row[2]){
 			sum++;
 		}
@@ -103,13 +106,13 @@ Para patch(const Para& para, const Row& row) {
 	return tryPara;
 }
 
-list<Para> analysys(const Para& para) {
-	list<Para> candidatePara;
+ParaList analysys(const Para& para) {
+	ParaList candidatePara = static_cast<ParaList>(new list<Para>);
 
-	for(auto it = trainFileContent.begin(); it != trainFileContent.end(); it++){
-		Row &row = *it;
+	for(auto it = trainFileContent->begin(); it != trainFileContent->end(); it++){
+		Row& row = *it;
 		if(sign(row, para) != row[2]){
-			candidatePara.push_back(patch(para, row));
+			candidatePara->push_back(patch(para, row));
 		}
 	}
 
@@ -123,15 +126,15 @@ Score deepin(const int i, const Para& para, const int depth) {
 	if(i < depth){
 		auto tryParas = analysys(para);
 
-		for(auto it = tryParas.begin(); it != tryParas.end(); it++){
-			Para &childPara = *it;
+		for(auto it = tryParas->begin(); it != tryParas->end(); it++){
+			Para& childPara = *it;
 			thisResult.push_back(deepin(i+1, childPara, depth));
 		}
 	} else{
 		auto tryParas = analysys(para);
 
-		for(auto it = tryParas.begin(); it != tryParas.end(); it++){
-			Para &subPara = *it;
+		for(auto it = tryParas->begin(); it != tryParas->end(); it++){
+			Para& subPara = *it;
 			thisResult.push_back(Score(errors(subPara), subPara));
 		}
 	}
