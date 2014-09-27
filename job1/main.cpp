@@ -10,13 +10,13 @@ typedef array<double, 3> Para;
 typedef pair<int, Para> Score;
 
 // function defines
-list<Row> readFile(string fileName);
-int sign(const Row &row, const Para &para);
-int errors(const Para &para);
-int predictErrors(const Para &para);
-Para patch(const Para &para, const Row &row);
-list<Para> analysys(const Para &para);
-Score deepin(int i, Para para, int depth);
+list<Row> readFile(const string& fileName);
+int sign(const Row& row, const Para& para);
+int errors(const Para& para);
+int predictErrors(const Para& para);
+Para patch(const Para& para, const Row& row);
+list<Para> analysys(const Para& para);
+Score deepin(const int i, const Para& para, const int depth);
 
 // preset data defines
 Para initPara = {0, 0, 0};
@@ -25,18 +25,20 @@ auto testFileContent = readFile("test_1_5.csv");
 
 // main
 int main(void) {
-	auto finalResult = deepin(0, initPara, 1);
-	int bestErrors = finalResult.first;
+	Score finalResult = deepin(0, initPara, 1);
+	
+	int bestError = finalResult.first;
 	Para bestPara = finalResult.second;
+	
 	int predictionError = predictErrors(bestPara);
 
-	cout << bestErrors << endl;
+	cout << bestError << endl;
 	cout << bestPara[0] << ", " << bestPara[1] << ", " << bestPara[2] << endl;
 	cout << predictionError << endl;
 }
 
 // function implementation
-list<Row> readFile(string fileName) {
+list<Row> readFile(const string& fileName) {
 	ifstream inFile(fileName);
 	string line;
 	vector<string> words;
@@ -56,7 +58,7 @@ list<Row> readFile(string fileName) {
 	return fileContent;
 }
 
-int sign(const Row &row, const Para &para) {
+int sign(const Row& row, const Para& para) {
 	double result = para[0] * row[0] + para[1] * row[1] + para[2];
 	if(result >= 0){
 		return 1;
@@ -65,7 +67,7 @@ int sign(const Row &row, const Para &para) {
 	}
 }
 
-int errors(const Para &para) {
+int errors(const Para& para) {
 	int sum = 0;
 
 	for(auto it = trainFileContent.begin(); it != trainFileContent.end(); it++){
@@ -78,7 +80,7 @@ int errors(const Para &para) {
 	return sum;
 }
 
-int predictErrors(const Para &para) {
+int predictErrors(const Para& para) {
 	int sum = 0;
 
 	for(auto it = testFileContent.begin(); it != testFileContent.end(); it++){
@@ -91,7 +93,7 @@ int predictErrors(const Para &para) {
 	return sum;
 }
 
-Para patch(const Para &para, const Row &row) {
+Para patch(const Para& para, const Row& row) {
 	Para tryPara = {
 		para[0] + row[2] * row[0],
 		para[1] + row[2] * row[1],
@@ -101,7 +103,7 @@ Para patch(const Para &para, const Row &row) {
 	return tryPara;
 }
 
-list<Para> analysys(const Para &para) {
+list<Para> analysys(const Para& para) {
 	list<Para> candidatePara;
 
 	for(auto it = trainFileContent.begin(); it != trainFileContent.end(); it++){
@@ -114,7 +116,7 @@ list<Para> analysys(const Para &para) {
 	return candidatePara;
 }
 
-Score deepin(int i, Para para, int depth) {
+Score deepin(const int i, const Para& para, const int depth) {
 	list<Score> thisResult;
 	thisResult.push_back(Score(errors(para), para));
 
@@ -123,8 +125,7 @@ Score deepin(int i, Para para, int depth) {
 
 		for(auto it = tryParas.begin(); it != tryParas.end(); it++){
 			Para &childPara = *it;
-			auto childResult = deepin(i+1, childPara, depth);
-			thisResult.push_back(Score(childResult.first, childResult.second));
+			thisResult.push_back(deepin(i+1, childPara, depth));
 		}
 	} else{
 		auto tryParas = analysys(para);
@@ -135,7 +136,7 @@ Score deepin(int i, Para para, int depth) {
 		}
 	}
 
-	double bestError = thisResult.begin()->first;
+	int bestError = thisResult.begin()->first;
 	Para bestPara = thisResult.begin()->second;
 
 	for(auto it = thisResult.begin(); it != thisResult.end(); it++){
