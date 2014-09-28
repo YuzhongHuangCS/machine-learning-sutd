@@ -1,4 +1,4 @@
-CC			= g++
+CC		= g++
 CFLAGS		= -std=c++11 -Wall -fopenmp -march=native -O3
 LINKFLAGS	=
 SRCS		= main.cpp

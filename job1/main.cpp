@@ -26,6 +26,17 @@ Para patch(const Para& para, const Row& row);
 ParaList analysys(const Para& para);
 Score deepin(const int now, const Para& para, const int limit);
 
+// overloading define
+ostream &operator<<(ostream& out, const Para& para) {
+	out << "[" << para[0] << ", " << para[1] << ", " << para[2] << "]";
+	return out;
+}
+
+ostream &operator<<(ostream& out, const Score& score) {
+	out << "<" << score.first << ", " << score.second << ">";
+	return out;
+}
+
 // preset data defines
 Para initPara = {0, 0, 0};
 auto trainFileContent = readFile("train_1_5.csv");
@@ -33,16 +44,11 @@ auto testFileContent = readFile("test_1_5.csv");
 
 // main
 int main(void) {
-	Score finalResult = deepin(0, initPara, 2);
-	
-	Para bestPara = finalResult.first;
-	int bestError = finalResult.second;
-	
-	int predictionError = predictErrors(bestPara);
+	Score trainResult = deepin(0, initPara, 2);
+	int predictionError = predictErrors(trainResult.first);
 
-	cout << bestError << endl;
-	cout << bestPara[0] << ", " << bestPara[1] << ", " << bestPara[2] << endl;
-	cout << predictionError << endl;
+	cout << "Train Result: " << trainResult << endl;
+	cout << "Prediction Error: " << predictionError << endl;
 }
 
 // function implementation
@@ -140,6 +146,9 @@ Score deepin(const int now, const Para& para, const int limit) {
 		for(unsigned int i = 0; i < size; i++){
 			Para& childPara = tryParas[i];
 			thisResult.push_back(deepin(now+1, childPara, limit));
+			if(now == 0){
+				cout << "No: " << i << ", Score: " << *thisResult.rbegin() << endl;
+			}
 		}
 	} else{
 		auto tryParas = *analysys(para);
