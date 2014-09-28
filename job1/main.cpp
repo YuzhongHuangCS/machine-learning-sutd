@@ -154,7 +154,6 @@ Score deepin(const int now, const Para& para, const int limit) {
 		auto tryParas = *analysys(para);
 		const unsigned int size = tryParas.size();
 
-		#pragma omp parallel for
 		for(unsigned int i = 0; i < size; i++){
 			Para& subPara = tryParas[i];
 			thisResult.push_back(Score(subPara, errors(subPara)));
