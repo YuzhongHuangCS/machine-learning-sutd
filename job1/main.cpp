@@ -44,7 +44,7 @@ auto testFileContent = readFile("test_1_5.csv");
 
 // main
 int main(void) {
-	Score trainResult = deepin(0, initPara, 2);
+	Score trainResult = deepin(0, initPara, 1);
 	int predictionError = predictErrors(trainResult.first);
 
 	cout << "Train Result: " << trainResult << endl;
@@ -142,7 +142,7 @@ Score deepin(const int now, const Para& para, const int limit) {
 		auto tryParas = *analysys(para);
 		const unsigned int size = tryParas.size();
 
-		#pragma omp parallel for
+		//#pragma omp parallel for
 		for(unsigned int i = 0; i < size; i++){
 			Para& childPara = tryParas[i];
 			thisResult.push_back(deepin(now+1, childPara, limit));
