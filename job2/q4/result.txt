@@ -1,0 +1,40 @@
+Linear Kernel:
+.....*...*
+optimization finished, #iter = 637
+nu = 0.024407
+obj = -0.903163, rho = 1.532559
+nSV = 39, nBSV = 0
+Total nSV = 39
+Accuracy = 84.375% (27/32) (classification)
+
+
+Polynomial Kernel:
+.*.*
+optimization finished, #iter = 186
+nu = 0.026157
+obj = -0.967852, rho = 0.276119
+nSV = 62, nBSV = 0
+Total nSV = 62
+Accuracy = 81.25% (26/32) (classification)
+
+
+Radial basis Kernel:
+.*
+optimization finished, #iter = 96
+nu = 0.824736
+obj = -32.541976, rho = -0.133095
+nSV = 74, nBSV = 25
+Total nSV = 74
+Accuracy = 90.625% (29/32) (classification)
+
+
+Sigmoid Kernel:
+*
+optimization finished, #iter = 39
+nu = 0.945946
+obj = -67.705765, rho = -0.697125
+nSV = 71, nBSV = 69
+Total nSV = 71
+Accuracy = 43.75% (14/32) (classification)
+
+

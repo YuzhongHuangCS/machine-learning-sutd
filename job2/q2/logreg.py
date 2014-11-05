@@ -1,6 +1,7 @@
 from numpy import *
 import matplotlib.pyplot as plt
 from random import randrange
+import heapq
 
 trainFile = array([list(map(lambda i: float(i), line.split(','))) for line in open('train_diabetes.csv', 'r')])
 dataSet = trainFile[:, 1:]
@@ -29,8 +30,16 @@ def test(weights):
 	return -sum([log(1 + exp(-labelSet[i] * dot(dataSet[i, :], weights))) for i in range(samples)]) / samples
 
 result = train(alpha=0.1, limit=10000)
-print result
-print draw
+
+diff = [draw[i+1]-draw[i] for i in range(len(draw)-1)]
+diffCopy = [draw[i+1]-draw[i] for i in range(len(draw)-1)]
+heapq.heapify(diff)
+biggest = heapq.nlargest(5, diff)
+
+print("Most important features...")
+
+for i in biggest:
+	print diffCopy.index(i)
 
 plt.plot(range(len(draw)), draw, linewidth = 2, label = 'accuracy')
 plt.show()
