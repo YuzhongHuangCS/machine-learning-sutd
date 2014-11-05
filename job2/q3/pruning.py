@@ -9,16 +9,12 @@ testSet = [list(map(lambda i: float(i), line.split(' '))) for line in open('test
 testLabel = [float(line) for line in open('testlabs.txt', 'r')]
 
 def entropy(first, second):
-	try:
-		total = first + second
-		fp = float(first) / total
-		sp = float(second) / total
-		return -((fp * math.log(fp, 2)) + (sp * math.log(sp, 2)))
-	except ValueError as e:
-		if (first == 0) or (second == 0):
-			return -math.log(1, 2)
-		else:
-			raise e
+	if (first == 0) or (second == 0):
+		return -math.log(1, 2)
+
+	fp = float(first) / (first + second)
+	sp = 1 - fp
+	return -((fp * math.log(fp, 2)) + (sp * math.log(sp, 2)))
 
 class Node(object):
 	def __init__(self, data, label, feature, featureIndex = None, featureValue = None, flag = None):
@@ -29,13 +25,13 @@ class Node(object):
 		self.featureIndex = featureIndex
 		self.featureValue = featureValue
 		self.flag = flag
+		self.childs = {}
 		
 		if flag == None:
 			self.features = len(data[0])
 			self.samples = len(data)
 			self.trues = int(sum(label))
 			#self.entropy = entropy(self.trues, self.samples - self.trues)
-			self.childs = {}
 
 			#print("Sample: %s, Feature: %s, Trues: %s, FeatureIndex: %s, FeatureValue: %s" % (self.samples, self.features, self.trues, self.featureIndex, self.featureValue))
 			if self.samples > 1 and self.features > 1 and self.trues != 0 and self.trues != self.samples:
@@ -173,16 +169,49 @@ class Node(object):
 			self.flag = False
 		else:
 			self.flag = True
-		del self.childs
+
+		self._childs = self.childs
+		self.childs = {}
+
+	def commit(self):
+		del self._childs
+
+	def revert(self):
+		self.childs = self._childs
+		del self._childs
+		self.flag = None
 
 def correctRate(node, data, label):
 	right = sum([node.query(data[i]) == label[i] for i in range(len(label))])
 
-	print("Right: %s, Total: %s" % (right, len(label)))
-	print("Rate: %s" % (float(right) / len(label)))
-
+	#print("Right: %s, Total: %s" % (right, len(label)))
+	#print("Rate: %s" % (float(right) / len(label)))
 	return float(right) / len(label)
 
 allFeature = dict.fromkeys(range(len(trainSet[0])), True)
 rootNode = Node(trainSet, trainLabel, allFeature)
-print(correctRate(rootNode, testSet, testLabel))
+bestRate = correctRate(rootNode, testSet, testLabel)
+print bestRate
+
+def prune(node, root):
+	for child in node.childs.values():
+		if len(child.childs) > 0:
+			prune(child, root)
+
+	node.cut()
+
+	rate = correctRate(root, testSet, testLabel)
+	global bestRate
+
+	if rate >= bestRate:
+		node.commit()
+		bestRate = rate
+		print("Best Rate: %s" % (bestRate))
+	else:
+		node.revert()
+
+lastRate = 0
+while lastRate < bestRate:
+	lastRate = bestRate
+	prune(rootNode, rootNode)
+	print bestRate
