@@ -235,6 +235,5 @@ def prune(node, root):
 prune(rootNode, rootNode)
 print("Final Best Rate: %s, %s, %s" % (correctRate(rootNode, trainSet, trainLabel), bestRate, correctRate(rootNode, testSet, testLabel)))
 
-print(rates)
 with open("result.json", 'w') as fout:
 	fout.write(json.dumps(rates))
