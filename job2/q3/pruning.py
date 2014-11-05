@@ -2,11 +2,27 @@
 import math
 import heapq
 import copy
+import random
+import json
 
+# Prepare Data
 trainSet = [list(map(lambda i: float(i), line.split(' '))) for line in open('trainfeat.txt', 'r')]
 trainLabel = [float(line) for line in open('trainlabs.txt', 'r')]
 testSet = [list(map(lambda i: float(i), line.split(' '))) for line in open('testfeat.txt', 'r')]
 testLabel = [float(line) for line in open('testlabs.txt', 'r')]
+
+dataPack = zip(trainSet, trainLabel)
+random.shuffle(dataPack)
+trainPack = dataPack[5000:]
+validationPack = dataPack[:5000]
+
+trainSet, trainLabel = zip(*trainPack)
+validationSet, validationLabel = zip(*validationPack)
+
+trainSet = list(trainSet)
+trainLabel = list(trainLabel)
+validationSet = list(validationSet)
+validationLabel = list(validationLabel)
 
 def entropy(first, second):
 	if (first == 0) or (second == 0):
@@ -190,8 +206,13 @@ def correctRate(node, data, label):
 
 allFeature = dict.fromkeys(range(len(trainSet[0])), True)
 rootNode = Node(trainSet, trainLabel, allFeature)
-bestRate = correctRate(rootNode, testSet, testLabel)
-print bestRate
+bestRate = correctRate(rootNode, validationSet, validationLabel)
+
+rates = []
+rates.append((correctRate(rootNode, trainSet, trainLabel), bestRate, correctRate(rootNode, testSet, testLabel)))
+
+print('Rates: TrainRate, ValidationRate, TestRate')
+print("Init Best Rate: %s, %s, %s" % rates[-1])
 
 def prune(node, root):
 	for child in node.childs.values():
@@ -200,18 +221,21 @@ def prune(node, root):
 
 	node.cut()
 
-	rate = correctRate(root, testSet, testLabel)
+	rate = correctRate(root, validationSet, validationLabel)
 	global bestRate
 
 	if rate >= bestRate:
 		node.commit()
 		bestRate = rate
-		print("Best Rate: %s" % (bestRate))
+		rates.append((correctRate(root, trainSet, trainLabel), bestRate, correctRate(root, testSet, testLabel)))
+		print("Best Rate: %s, %s, %s" % rates[-1])
 	else:
 		node.revert()
 
-lastRate = 0
-while lastRate < bestRate:
-	lastRate = bestRate
-	prune(rootNode, rootNode)
-	print bestRate
+prune(rootNode, rootNode)
+rates.append((correctRate(rootNode, trainSet, trainLabel), bestRate, correctRate(rootNode, testSet, testLabel)))
+print("Final Best Rate: %s, %s, %s" % rates[-1])
+
+print(rates)
+with open("result.json", 'w') as fout:
+	fout.write(json.dumps(rates))
