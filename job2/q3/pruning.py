@@ -233,8 +233,7 @@ def prune(node, root):
 		node.revert()
 
 prune(rootNode, rootNode)
-rates.append((correctRate(rootNode, trainSet, trainLabel), bestRate, correctRate(rootNode, testSet, testLabel)))
-print("Final Best Rate: %s, %s, %s" % rates[-1])
+print("Final Best Rate: %s, %s, %s" % (correctRate(rootNode, trainSet, trainLabel), bestRate, correctRate(rootNode, testSet, testLabel)))
 
 print(rates)
 with open("result.json", 'w') as fout:
