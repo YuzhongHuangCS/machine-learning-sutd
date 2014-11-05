@@ -34,17 +34,23 @@ class Node(object):
 			self.features = len(data[0])
 			self.samples = len(data)
 			self.trues = int(sum(label))
-			self.entropy = entropy(self.trues, self.samples - self.trues)
-			self.childs = []
+			#self.entropy = entropy(self.trues, self.samples - self.trues)
+			self.childs = {}
 
 			#print("Sample: %s, Feature: %s, Trues: %s, FeatureIndex: %s, FeatureValue: %s" % (self.samples, self.features, self.trues, self.featureIndex, self.featureValue))
 			if self.samples > 1 and self.features > 1 and self.trues != 0 and self.trues != self.samples:
 				self.prepare()
 				self.prepareTrue()
 				self.grow()
+			else:
+				if self.samples >= (2 * self.trues):
+					self.flag = False
+				else:
+					self.flag = True
 
 		else:
-			print("FeatureIndex: %s, FeatureValue: %s, Flag: %s" % (self.featureIndex, self.featureValue, self.flag))
+			pass
+			#print("FeatureIndex: %s, FeatureValue: %s, Flag: %s" % (self.featureIndex, self.featureValue, self.flag))
 
 		del self.data
 		del self.label
@@ -104,6 +110,7 @@ class Node(object):
 				localFeatureIndex += 1
 
 		choice = heapq.heappop(candidates)
+		self.ruleIndex = choice[2]
 		index = choice[1]
 
 		#print(choice)
@@ -115,18 +122,14 @@ class Node(object):
 		childFeature[choice[2]] = False
 
 		if len(self.table[index]) == 1:
-			print(choice)
-			print(self.table[index])
-			print(self.trueTable[index])
-			print(self.entropy, choice[0])
 			key, value = self.table[index].popitem()
 			key, trueValue = self.trueTable[index].popitem()
-			if value > (2 * trueValue):
+			if value >= (2 * trueValue):
 				childNode = Node(None, None, childFeature, choice[2], key, False)
 			else:
 				childNode = Node(None, None, childFeature, choice[2], key, True)
 
-			self.childs.append(childNode)
+			self.childs[key] = childNode
 			return
 
 		for key in self.table[index]:
@@ -143,7 +146,37 @@ class Node(object):
 					i += 1
 
 			childNode = Node(childData, childLabel, childFeature, choice[2], key)
-			self.childs.append(childNode)
+			self.childs[key] = childNode
+
+	def query(self, data):
+		if self.flag == None:
+			key = data[self.ruleIndex]
+			#print key
+
+			child =  self.childs.get(key)
+			if child == None:
+				print "Meet undefined feature"
+				trys = [tryChild.query(data) for tryChild in self.childs.values()]
+				print trys
+				if len(trys) >= (2 * sum(trys)):
+					return False
+				else:
+					return True
+			else:
+				return child.query(data)
+		else:
+			return self.flag
 
 allFeature = dict.fromkeys(range(len(testSet[0])), True)
 rootNode = Node(testSet, testLabel, allFeature)
+
+right = 0
+for i in range(len(testSet)):
+	predict = rootNode.query(testSet[i])
+	answer = testLabel[i]
+	print(predict, answer)
+	if predict == answer:
+		right += 1
+
+print("Right: %s, Total: %s" % (right, len(testLabel)))
+print("Rate: %s" % (float(right) / len(testLabel)))
