@@ -2,11 +2,8 @@
 import copy
 import math
 
-trainFile = open('train_1_5.csv', 'r')
-testFile = open('test_1_5.csv', 'r')
-
-trainFileContent = [list(map(lambda i: float(i), line.split(','))) for line in trainFile]
-testFileContent = [list(map(lambda i: float(i), line.split(','))) for line in testFile]
+trainFileContent = [list(map(lambda i: float(i), line.split(','))) for line in open('train_1_5.csv', 'r')]
+testFileContent = [list(map(lambda i: float(i), line.split(','))) for line in open('test_1_5.csv', 'r')]
 
 initPara = [0, 0, 0]
 
@@ -38,8 +35,7 @@ def analysys(para):
 '''
 def deepin(i, para, depth):
 	if i < depth:
-		tryPara = list(analysys(para))
-		results = [deepin(i+1, subPara, depth) for subPara in tryPara]
+		results = [deepin(i+1, subPara, depth) for subPara in analysys(para)]
 
 		thisErrors = [result[0] for result in results]
 		thisPara = [result[1] for result in results]
