@@ -8,10 +8,10 @@ def sign(row, para):
 	return 1.0 if (para[0] * row[0] + para[1] * row[1] + para[2]) >= 0 else -1.0
 
 def errors(para):
-	return sum([sign((row[0], row[1]), para) != row[2] for row in trainFileContent])
+	return sum([sign(row, para) != row[2] for row in trainFileContent])
 
 def predictErrors(para):
-	return sum([sign((row[0], row[1]), para) != row[2] for row in testFileContent])
+	return sum([sign(row, para) != row[2] for row in testFileContent])
 
 def patch(para, row):
 	return [
@@ -22,7 +22,7 @@ def patch(para, row):
 
 def analysys(para):
 	for row in trainFileContent:
-		if sign((row[0], row[1]), para) != row[2]:
+		if sign(row, para) != row[2]:
 			yield patch(para, row)
 
 '''
