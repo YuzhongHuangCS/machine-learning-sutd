@@ -83,3 +83,7 @@ target/
 *.exe
 *.out
 *.app
+
+# Data files
+*.txt
+*.csv
