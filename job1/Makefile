@@ -13,8 +13,5 @@ $(PROG): $(OBJS)
 .cpp.o:
 	$(CC) $(CFLAGS) $< -c -o $@ $(INCFLAGS)
 
-depend:
-	makedepend $(INCFLAGS) -Y $(SRCS)
-
 clean:
 	rm $(OBJS) $(PROG)

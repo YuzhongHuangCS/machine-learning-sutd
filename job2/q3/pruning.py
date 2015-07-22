@@ -24,6 +24,10 @@ trainLabel = list(trainLabel)
 validationSet = list(validationSet)
 validationLabel = list(validationLabel)
 
+del dataPack
+del trainPack
+del validationPack
+
 def entropy(first, second):
 	if (first == 0) or (second == 0):
 		return -math.log(1, 2)
